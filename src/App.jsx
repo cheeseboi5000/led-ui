@@ -1,4 +1,11 @@
 import { useState } from "react"
+// Import the functions you need from the SDKs you need
+import { ref, set } from "firebase/database"
+import { db } from "./firebase"
+
+function saveLeds(ledArray) {
+  set(ref(db, "leds"), ledArray)
+}
 
 export default function App() {
   const numRows = 40 // adjust for your layout
@@ -48,8 +55,8 @@ export default function App() {
           />
         ))}
       </div>
-      <button onClick={exportJson} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">
-        Export JSON
+      <button onClick={() => saveLeds(leds)} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">
+        Save JSON
       </button>
     </div>
   )
