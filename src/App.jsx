@@ -1,0 +1,56 @@
+import { useState } from "react"
+
+export default function App() {
+  const numRows = 40 // adjust for your layout
+  const numCols = 50 // 40x50 = 2000 LEDs
+  const total = numRows * numCols
+
+  // Initialize all LEDs off
+  const [leds, setLeds] = useState(Array(total).fill(false))
+
+  const toggleLed = (index) => {
+    const newLeds = [...leds]
+    newLeds[index] = !newLeds[index]
+    setLeds(newLeds)
+  }
+
+  const exportJson = () => {
+    const jsonData = JSON.stringify({ leds }, null, 2)
+    const blob = new Blob([jsonData], { type: "application/json" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = "leds.json"
+    link.click()
+    URL.revokeObjectURL(url)
+  }
+
+  return (
+    <div className="p-4">
+      <h1 className="text-xl font-bold mb-4">LED Grid Editor</h1>
+      <div
+        className="grid gap-1"
+        style={{
+          gridTemplateColumns: `repeat(${numCols}, 15px)`,
+        }}
+      >
+        {leds.map((led, i) => (
+          <div
+            key={i}
+            onClick={() => toggleLed(i)}
+            className="cursor-pointer"
+            style={{
+              width: "15px",
+              height: "15px",
+              backgroundColor: led ? "limegreen" : "black",
+              border: "1px solid #222",
+            }}
+          />
+        ))}
+      </div>
+      <button onClick={exportJson} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">
+        Export JSON
+      </button>
+    </div>
+  )
+}
