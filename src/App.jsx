@@ -3,33 +3,24 @@ import { useState } from "react"
 import { ref, set } from "firebase/database"
 import { db } from "./firebase"
 
+// @ts-ignore
 function saveLeds(ledArray) {
   set(ref(db, "leds"), ledArray)
 }
 
 export default function App() {
-  const numRows = 40 // adjust for your layout
-  const numCols = 50 // 40x50 = 2000 LEDs
+  const numRows = 5 // adjust for your layout
+  const numCols = 5 // 40x50 = 2000 LEDs
   const total = numRows * numCols
 
   // Initialize all LEDs off
   const [leds, setLeds] = useState(Array(total).fill(false))
 
+  // @ts-ignore
   const toggleLed = (index) => {
     const newLeds = [...leds]
     newLeds[index] = !newLeds[index]
     setLeds(newLeds)
-  }
-
-  const exportJson = () => {
-    const jsonData = JSON.stringify({ leds }, null, 2)
-    const blob = new Blob([jsonData], { type: "application/json" })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement("a")
-    link.href = url
-    link.download = "leds.json"
-    link.click()
-    URL.revokeObjectURL(url)
   }
 
   return (
