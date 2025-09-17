@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 // Import the functions you need from the SDKs you need
 import { ref, set } from "firebase/database"
 import { db } from "./firebase"
@@ -12,17 +12,54 @@ export default function App() {
   const numRows = 5 // adjust for your layout
   const numCols = 5 // 40x50 = 2000 LEDs
   const total = numRows * numCols
+  const [isMouseDown, setIsMouseDown] = useState(false)
+
+  // Handle mouse down event
+  const handleMouseDown = () => {
+    setIsMouseDown(true)
+    console.log("Mouse button is down!")
+  }
+
+  // Handle mouse up event
+  const handleMouseUp = () => {
+    setIsMouseDown(false)
+    console.log("Mouse button is up!")
+  }
+
+  // Attach event listeners to the document to capture mouse events globally
+  useEffect(() => {
+    document.addEventListener("mousedown", handleMouseDown)
+    document.addEventListener("mouseup", handleMouseUp)
+
+    // Clean up event listeners on component unmount
+    return () => {
+      document.removeEventListener("mousedown", handleMouseDown)
+      document.removeEventListener("mouseup", handleMouseUp)
+    }
+  }, [])
 
   // Initialize all LEDs off
   const [leds, setLeds] = useState(Array(total * 3).fill(0))
+  const [color, setColor] = useState("#ff0000")
 
   // @ts-ignore
   const toggleLed = (index) => {
-    const newLeds = [...leds]
-    newLeds[index] = !newLeds[index]
-    newLeds[index + 1] = !newLeds[index + 1]
-    newLeds[index + 2] = !newLeds[index + 2]
-    setLeds(newLeds)
+    if (isMouseDown) {
+      const newLeds = [...leds]
+      const r = parseInt(color.slice(1, 3), 16)
+      const g = parseInt(color.slice(3, 5), 16)
+      const b = parseInt(color.slice(5, 7), 16)
+      newLeds[index] = r
+      newLeds[index + 1] = g
+      newLeds[index + 2] = b
+      setLeds(newLeds)
+    }
+  }
+  // @ts-ignore
+  const handleChange = (event) => {
+    setColor(event.target.value)
+
+    console.log(event.target.value)
   }
 
   return (
@@ -34,41 +71,23 @@ export default function App() {
           gridTemplateColumns: `repeat(${numCols}, 15px)`,
         }}
       >
+        <input type="color" value={color} onChange={handleChange} />
+
         {leds.map((led, i) =>
-          i % 3 ? (
-            3
-          ) : (
+          i % 3 == 0 ? (
             <div
               key={i}
-              onClick={() => toggleLed(i)}
-              className="cursor-pointer"
+              onMouseMove={() => toggleLed(i)}
+              className="cursor-pointer node"
               style={{
                 width: "15px",
                 height: "15px",
-                backgroundColor: leds[i] ? "red" : "black",
+                backgroundColor: leds[i] ? `rgb(${leds[i]},${leds[i + 1]},${leds[i + 2]})` : "black",
                 border: "1px solid #222",
               }}
-            >
-              {""}
-              <div
-                style={{
-                  marginLeft: "15px",
-                  width: "15px",
-                  height: "15px",
-                  backgroundColor: leds[i + 1] ? "green" : "black",
-                  border: "1px solid #222",
-                }}
-              ></div>{" "}
-              <div
-                style={{
-                  marginLeft: "30px",
-                  width: "15px",
-                  height: "15px",
-                  backgroundColor: leds[i + 2] ? "blue" : "black",
-                  border: "1px solid #222",
-                }}
-              ></div>
-            </div>
+            ></div>
+          ) : (
+            <></>
           )
         )}
       </div>
