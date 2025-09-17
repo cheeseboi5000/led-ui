@@ -14,12 +14,14 @@ export default function App() {
   const total = numRows * numCols
 
   // Initialize all LEDs off
-  const [leds, setLeds] = useState(Array(total).fill(false))
+  const [leds, setLeds] = useState(Array(total * 3).fill(0))
 
   // @ts-ignore
   const toggleLed = (index) => {
     const newLeds = [...leds]
     newLeds[index] = !newLeds[index]
+    newLeds[index + 1] = !newLeds[index + 1]
+    newLeds[index + 2] = !newLeds[index + 2]
     setLeds(newLeds)
   }
 
@@ -32,19 +34,43 @@ export default function App() {
           gridTemplateColumns: `repeat(${numCols}, 15px)`,
         }}
       >
-        {leds.map((led, i) => (
-          <div
-            key={i}
-            onClick={() => toggleLed(i)}
-            className="cursor-pointer"
-            style={{
-              width: "15px",
-              height: "15px",
-              backgroundColor: led ? "limegreen" : "black",
-              border: "1px solid #222",
-            }}
-          />
-        ))}
+        {leds.map((led, i) =>
+          i % 3 ? (
+            3
+          ) : (
+            <div
+              key={i}
+              onClick={() => toggleLed(i)}
+              className="cursor-pointer"
+              style={{
+                width: "15px",
+                height: "15px",
+                backgroundColor: leds[i] ? "red" : "black",
+                border: "1px solid #222",
+              }}
+            >
+              {""}
+              <div
+                style={{
+                  marginLeft: "15px",
+                  width: "15px",
+                  height: "15px",
+                  backgroundColor: leds[i + 1] ? "green" : "black",
+                  border: "1px solid #222",
+                }}
+              ></div>{" "}
+              <div
+                style={{
+                  marginLeft: "30px",
+                  width: "15px",
+                  height: "15px",
+                  backgroundColor: leds[i + 2] ? "blue" : "black",
+                  border: "1px solid #222",
+                }}
+              ></div>
+            </div>
+          )
+        )}
       </div>
       <button onClick={() => saveLeds(leds)} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">
         Save JSON
